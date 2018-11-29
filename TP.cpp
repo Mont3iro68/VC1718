@@ -18,27 +18,31 @@ int main(int, char**)
 	cap.set(CV_CAP_PROP_FRAME_HEIGHT,480);
 
 	int max_slider = 255;
-    Mat hsv, frame, mask, result,blurred;
+
+
+    Mat hsv, frame, mask, result, eroded ,blurred;
     namedWindow("Trackbar");
     namedWindow("source", WINDOW_NORMAL);
     namedWindow("mask", WINDOW_NORMAL);
     namedWindow("Color Trackbar", WINDOW_NORMAL);
+    namedWindow("result",WINDOW_NORMAL);
     
     createTrackbar("Low H", "Trackbar", 0, 179, NULL);
-    createTrackbar("Low S", "Trackbar", 0, 254, NULL);
-    createTrackbar("Low V", "Trackbar", 0, 254, NULL);
+    createTrackbar("Low S", "Trackbar", 0, 255, NULL);
+    createTrackbar("Low V", "Trackbar", 0, 255, NULL);
     createTrackbar("High H", "Trackbar", &max_slider, 179, NULL);
-    createTrackbar("High S", "Trackbar", &max_slider, 254, NULL);
-    createTrackbar("High V", "Trackbar", &max_slider, 254, NULL);
+    createTrackbar("High S", "Trackbar", &max_slider, 255, NULL);
+    createTrackbar("High V", "Trackbar", &max_slider, 255, NULL);
 
-    createTrackbar("Red","Color Trackbar",0,254,NULL);
-    createTrackbar("Green","Color Trackbar",0,254,NULL);
-    createTrackbar("Blue","Color Trackbar",0,254,NULL);
+    createTrackbar("Red","Color Trackbar",0,255,NULL);
+    createTrackbar("Green","Color Trackbar",0,255,NULL);
+    createTrackbar("Blue","Color Trackbar",0,255,NULL);
 
     vector<vector<Point> > contours;
 
     while(1){
         cap>>frame; // get a new frame from camera
+        cap>>result;
         
         GaussianBlur(frame,blurred,Size(5,5),0,0);
         cvtColor(blurred,hsv,COLOR_BGR2HSV); 
@@ -56,20 +60,28 @@ int main(int, char**)
 
 
         inRange(hsv,Scalar(l_h, l_s, l_v),Scalar(h_h,h_s,h_v),mask);
-        findContours( mask, contours, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
+        
+        erode(mask,eroded,Mat(),Point(-1,-1),4,1,1);
+        dilate(eroded,eroded,Mat(),Point(-1,-1),4,1,1);
+        
+        findContours(eroded, contours, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
       	
         for (unsigned int i = 0; i < contours.size();i++){
         	double area = contourArea(contours[i]);
         	if (area > 10000)
-        		drawContours(frame,contours,-1,Scalar(objB,objG,objR),-1);
+        		drawContours(result,contours,-1,Scalar(objB,objG,objR),-1);
         	}
 
 
         imshow("source", frame);
-        imshow("mask",mask);
+        imshow("mask",eroded);
+        imshow("result",result);
+
         if(waitKey(30) >= 0) break;
     }
     destroyAllWindows();
     // the camera will be deinitialized automatically in VideoCapture destructor
     return 0;
 }
+
+//green (30,68,97)
