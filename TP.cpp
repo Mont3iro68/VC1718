@@ -20,7 +20,7 @@ int main(int, char**)
 	int max_slider = 255;
 
 
-    Mat hsv, frame, mask, result, eroded ,blurred;
+    Mat hsv, frame, mask, result, eroded ,blurred, hsvBar;
     namedWindow("Trackbar");
     namedWindow("source", WINDOW_NORMAL);
     namedWindow("mask", WINDOW_NORMAL);
@@ -39,25 +39,33 @@ int main(int, char**)
     createTrackbar("Blue","Color Trackbar",0,255,NULL);
 
     vector<vector<Point> > contours;
+    
 
     while(1){
         cap>>frame; // get a new frame from camera
         cap>>result;
-        
+        hsvBar =  imread("HSbar.png");
+
+
         GaussianBlur(frame,blurred,Size(5,5),0,0);
         cvtColor(blurred,hsv,COLOR_BGR2HSV); 
 
         int l_h = getTrackbarPos("Low H","Trackbar");
+        int h_h = getTrackbarPos("High H","Trackbar");
+
         int l_s = getTrackbarPos("Low S","Trackbar");
         int l_v = getTrackbarPos("Low V","Trackbar");
-        int h_h = getTrackbarPos("High H","Trackbar");
         int h_s = getTrackbarPos("High S","Trackbar");
         int h_v = getTrackbarPos("High V","Trackbar");
         int objR = getTrackbarPos("Red","Color Trackbar");
         int objG = getTrackbarPos("Green","Color Trackbar");
         int objB = getTrackbarPos("Blue","Color Trackbar");
 
-
+        
+        circle(hsvBar,Point(l_h * 4,255),5,Scalar(0,0,0),2,8,0); // low hue circle
+        circle(hsvBar,Point(h_h * 4,255),5,Scalar(0,0,0),2,8,0); // high hue circle
+        circle(hsvBar,Point(0,l_s),5,Scalar(0,0,0),2,8,0); //low saturation circle
+        circle(hsvBar,Point(0,h_s),5,Scalar(0,0,0),2,8,0); //high saturation circle
 
         inRange(hsv,Scalar(l_h, l_s, l_v),Scalar(h_h,h_s,h_v),mask);
         
@@ -72,13 +80,14 @@ int main(int, char**)
         		drawContours(result,contours,-1,Scalar(objB,objG,objR),-1);
         	}
 
-
         imshow("source", frame);
         imshow("mask",eroded);
         imshow("result",result);
+        imshow("Trackbar", hsvBar);
 
         if(waitKey(30) >= 0) break;
     }
+    cout << hsvBar.cols;
     destroyAllWindows();
     // the camera will be deinitialized automatically in VideoCapture destructor
     return 0;
