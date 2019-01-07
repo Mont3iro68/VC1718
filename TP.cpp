@@ -1,10 +1,34 @@
-#include "opencv2/opencv.hpp"
-#include "opencv2/videoio.hpp"
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-using namespace cv;
-using namespace std;
+
+#include "Color.h"
+
+
+
+
+
+
+
+void morph (Mat mask){
+    
+    Mat eroded = getStructuringElement( MORPH_RECT,Size(3,3));
+    Mat dilated = getStructuringElement( MORPH_RECT,Size(8,8));
+    erode(mask,mask,eroded);
+    erode(mask,mask,eroded);
+    dilate(mask,mask,dilated);
+
+}
+
+void findObject(Mat mask, Mat result, Scalar color ){
+    vector<vector<Point> > contours;
+    Mat temp;
+    mask.copyTo(temp);
+    findContours(mask, contours,RETR_CCOMP,CHAIN_APPROX_SIMPLE);
+    for (unsigned int i = 0; i < contours.size();i++){
+            double area = contourArea(contours[i]);
+            if (area > 10000)
+                drawContours(result,contours,-1,color,-1);
+            }
+}
+
 
 
 int main(int, char**)
@@ -14,13 +38,13 @@ int main(int, char**)
         return -1;
     
 
-    cap.set(CV_CAP_PROP_FRAME_WIDTH,640);
-	cap.set(CV_CAP_PROP_FRAME_HEIGHT,480);
+    cap.set(CAP_PROP_FRAME_WIDTH,640);
+	cap.set(CAP_PROP_FRAME_HEIGHT,480);
 
 	int max_slider = 255;
 
-
-    Mat hsv, frame, mask, result, eroded ,blurred, hsvBar;
+    bool calibrate = false;
+    Mat hsv, frame, mask, result,blurred, hsvBar;
     namedWindow("Trackbar");
     namedWindow("source", WINDOW_NORMAL);
     namedWindow("mask", WINDOW_NORMAL);
@@ -38,17 +62,26 @@ int main(int, char**)
     createTrackbar("Green","Color Trackbar",0,255,NULL);
     createTrackbar("Blue","Color Trackbar",0,255,NULL);
 
-    vector<vector<Point> > contours;
     
+    
+
+
+
 
     while(1){
         cap>>frame; // get a new frame from camera
         cap>>result;
+        GaussianBlur(frame,blurred,Size(5,5),0,0);
+        cvtColor(blurred,hsv,COLOR_BGR2HSV); 
+        int objR = getTrackbarPos("Red","Color Trackbar");
+        int objG = getTrackbarPos("Green","Color Trackbar");
+        int objB = getTrackbarPos("Blue","Color Trackbar");
+        
+        if(calibrate){
+
         hsvBar =  imread("HSbar.png");
 
 
-        GaussianBlur(frame,blurred,Size(5,5),0,0);
-        cvtColor(blurred,hsv,COLOR_BGR2HSV); 
 
         int l_h = getTrackbarPos("Low H","Trackbar");
         int h_h = getTrackbarPos("High H","Trackbar");
@@ -57,9 +90,6 @@ int main(int, char**)
         int l_v = getTrackbarPos("Low V","Trackbar");
         int h_s = getTrackbarPos("High S","Trackbar");
         int h_v = getTrackbarPos("High V","Trackbar");
-        int objR = getTrackbarPos("Red","Color Trackbar");
-        int objG = getTrackbarPos("Green","Color Trackbar");
-        int objB = getTrackbarPos("Blue","Color Trackbar");
 
         
         circle(hsvBar,Point(l_h * 4,255),5,Scalar(0,0,0),2,8,0); // low hue circle
@@ -67,23 +97,27 @@ int main(int, char**)
         circle(hsvBar,Point(0,l_s),5,Scalar(0,0,0),2,8,0); //low saturation circle
         circle(hsvBar,Point(0,h_s),5,Scalar(0,0,0),2,8,0); //high saturation circle
 
-        inRange(hsv,Scalar(l_h, l_s, l_v),Scalar(h_h,h_s,h_v),mask);
-        
-        erode(mask,eroded,Mat(),Point(-1,-1),4,1,1);
-        dilate(eroded,eroded,Mat(),Point(-1,-1),4,1,1);
-        
-        findContours(eroded, contours, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
-      	
-        for (unsigned int i = 0; i < contours.size();i++){
-        	double area = contourArea(contours[i]);
-        	if (area > 10000)
-        		drawContours(result,contours,-1,Scalar(objB,objG,objR),-1);
-        	}
 
-        imshow("source", frame);
-        imshow("mask",eroded);
-        imshow("result",result);
+        inRange(hsv,Scalar(l_h, l_s, l_v),Scalar(h_h,h_s,h_v),mask);
+        morph(mask);
+        findObject(mask,result,Scalar(objB,objG,objR));
+        imshow("mask",mask);
         imshow("Trackbar", hsvBar);
+        
+        }else{
+            Color yellow("yellow");
+            inRange(hsv,yellow.getHSVlow(),yellow.getHSVhigh(),mask);
+            morph(mask);
+            findObject(mask,result,Scalar(objB,objG,objR));
+
+        }
+        
+
+
+
+
+        //imshow("source", frame);
+        imshow("result",result);
 
         if(waitKey(30) >= 0) break;
     }
@@ -93,4 +127,5 @@ int main(int, char**)
     return 0;
 }
 
-//green (30,68,97)
+
+
