@@ -1,11 +1,4 @@
-
 #include "Color.h"
-
-
-
-
-
-
 
 void morph (Mat mask){
     
@@ -14,7 +7,6 @@ void morph (Mat mask){
     erode(mask,mask,eroded);
     erode(mask,mask,eroded);
     dilate(mask,mask,dilated);
-
 }
 
 void findObject(Mat mask, Mat result, Scalar color ){
@@ -26,7 +18,7 @@ void findObject(Mat mask, Mat result, Scalar color ){
             double area = contourArea(contours[i]);
             if (area > 10000)
                 drawContours(result,contours,-1,color,-1);
-            }
+    }
 }
 
 bool option() {
@@ -56,12 +48,10 @@ bool option() {
 }
 
 
-int main(int, char**)
-{
-    
+int main(int, char**) {
+
     bool calibrate = option();
         
-
     VideoCapture cap(0); // open the default camera
     if(!cap.isOpened())  // check if we succeeded
         return -1;
@@ -94,8 +84,6 @@ int main(int, char**)
     
 
 
-
-
     while(1){
         cap>>frame; // get a new frame from camera
         cap>>result;
@@ -106,48 +94,43 @@ int main(int, char**)
         int objB = getTrackbarPos("Blue","Color Trackbar");
         
 
+        if(calibrate) {
+
+        	hsvBar =  imread("HSbar.png");
 
 
-        if(calibrate){
-
-        hsvBar =  imread("HSbar.png");
-
-
-
-        int l_h = getTrackbarPos("Low H","Trackbar");
-        int h_h = getTrackbarPos("High H","Trackbar");
-
-        int l_s = getTrackbarPos("Low S","Trackbar");
-        int l_v = getTrackbarPos("Low V","Trackbar");
-        int h_s = getTrackbarPos("High S","Trackbar");
-        int h_v = getTrackbarPos("High V","Trackbar");
+        	int l_h = getTrackbarPos("Low H","Trackbar");
+        	int h_h = getTrackbarPos("High H","Trackbar");
+        	int l_s = getTrackbarPos("Low S","Trackbar");
+        	int l_v = getTrackbarPos("Low V","Trackbar");
+        	int h_s = getTrackbarPos("High S","Trackbar");
+        	int h_v = getTrackbarPos("High V","Trackbar");
 
         
-        circle(hsvBar,Point(l_h * 4,255),5,Scalar(0,0,0),2,8,0); // low hue circle
-        circle(hsvBar,Point(h_h * 4,255),5,Scalar(0,0,0),2,8,0); // high hue circle
-        circle(hsvBar,Point(0,l_s),5,Scalar(0,0,0),2,8,0); //low saturation circle
-        circle(hsvBar,Point(0,h_s),5,Scalar(0,0,0),2,8,0); //high saturation circle
+        	circle(hsvBar,Point(l_h * 4,255),5,Scalar(0,0,0),2,8,0); // low hue circle
+        	circle(hsvBar,Point(h_h * 4,255),5,Scalar(0,0,0),2,8,0); // high hue circle
+        	circle(hsvBar,Point(0,l_s),5,Scalar(0,0,0),2,8,0); //low saturation circle
+        	circle(hsvBar,Point(0,h_s),5,Scalar(0,0,0),2,8,0); //high saturation circle
 
 
-        inRange(hsv,Scalar(l_h, l_s, l_v),Scalar(h_h,h_s,h_v),mask);
-        morph(mask);
-        findObject(mask,result,Scalar(objB,objG,objR));
-        imshow("mask",mask);
-        imshow("Trackbar", hsvBar);
+	        inRange(hsv,Scalar(l_h, l_s, l_v),Scalar(h_h,h_s,h_v),mask);
+    	    morph(mask);
+        	findObject(mask,result,Scalar(objB,objG,objR));
+        	imshow("mask",mask);
+        	imshow("Trackbar", hsvBar);
         
-        }else{
+        } else {
+
             Color yellow("yellow"), green("green"), blue("blue"), red("red");
            
 			inRange(hsv,green.getHSVlow(),green.getHSVhigh(),mask);
             morph(mask);
             findObject(mask,result,Scalar(objB,objG,objR));
 
-
             inRange(hsv,yellow.getHSVlow(),yellow.getHSVhigh(),mask);
             morph(mask);
             findObject(mask,result,Scalar(objB,objG,objR));
             
-
             inRange(hsv,blue.getHSVlow(),blue.getHSVhigh(),mask);
             morph(mask);
             findObject(mask,result,Scalar(objB,objG,objR));            
@@ -157,11 +140,6 @@ int main(int, char**)
             findObject(mask,result,Scalar(objB,objG,objR));
         }
         
-
-
-
-
-        //imshow("source", frame);
         imshow("result",result);
 
         if(waitKey(30) >= 0) break;
