@@ -29,10 +29,39 @@ void findObject(Mat mask, Mat result, Scalar color ){
             }
 }
 
+bool option() {
+	char *p, s[10];
+        int n = 0;
+        bool calibrate;
+
+        while (n == 0){
+        	printf("Enter 1-calibrate color or 2-test color detection:\n");
+        	fgets(s,sizeof(s),stdin);
+       		n = strtol(s, &p, 10);
+
+        	switch(n) {
+        		case 1:
+        			calibrate = true;
+        			break;
+        		case 2:
+        			calibrate = false;
+        			break;
+        		default:
+        			printf("Wrong key\n");
+        			n = 0;
+        			break;
+        	}
+        }
+        return calibrate;
+}
 
 
 int main(int, char**)
 {
+    
+    bool calibrate = option();
+        
+
     VideoCapture cap(0); // open the default camera
     if(!cap.isOpened())  // check if we succeeded
         return -1;
@@ -43,7 +72,6 @@ int main(int, char**)
 
 	int max_slider = 255;
 
-    bool calibrate = false;
     Mat hsv, frame, mask, result,blurred, hsvBar;
     namedWindow("Trackbar");
     namedWindow("source", WINDOW_NORMAL);
@@ -77,6 +105,9 @@ int main(int, char**)
         int objG = getTrackbarPos("Green","Color Trackbar");
         int objB = getTrackbarPos("Blue","Color Trackbar");
         
+
+
+
         if(calibrate){
 
         hsvBar =  imread("HSbar.png");
