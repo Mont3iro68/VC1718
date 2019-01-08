@@ -9,18 +9,18 @@ Color::Color(){
 Color::Color(string color){
 	if (color == "green"){
 			setColor(color);
-			setHSVlow(Scalar(35,0,85));
+			setHSVlow(Scalar(45,90,50));
 			setHSVhigh(Scalar(100,255,255));
 	}
 	if(color == "blue"){
 			setColor(color);
-			setHSVlow(Scalar(95,110,85));
-			setHSVhigh(Scalar(100,255,255));
+			setHSVlow(Scalar(90,120,120));
+			setHSVhigh(Scalar(130,255,255));
 	}
 	if(color == "red"){
 			setColor(color);
-			setHSVlow(Scalar(0,110,180));
-			setHSVhigh(Scalar(180,255,255));
+			setHSVlow(Scalar(0,160,0));
+			setHSVhigh(Scalar(179,255,255));
 	}
 	if(color == "yellow"){	
 			setColor(color);

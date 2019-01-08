@@ -138,13 +138,15 @@ int main(int, char**)
         }else{
             Color yellow("yellow"), green("green"), blue("blue"), red("red");
            
-            inRange(hsv,yellow.getHSVlow(),yellow.getHSVhigh(),mask);
-            morph(mask);
-            findObject(mask,result,Scalar(objB,objG,objR));
-			
 			inRange(hsv,green.getHSVlow(),green.getHSVhigh(),mask);
             morph(mask);
             findObject(mask,result,Scalar(objB,objG,objR));
+
+
+            inRange(hsv,yellow.getHSVlow(),yellow.getHSVhigh(),mask);
+            morph(mask);
+            findObject(mask,result,Scalar(objB,objG,objR));
+            
 
             inRange(hsv,blue.getHSVlow(),blue.getHSVhigh(),mask);
             morph(mask);
