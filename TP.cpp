@@ -105,11 +105,23 @@ int main(int, char**)
         imshow("Trackbar", hsvBar);
         
         }else{
-            Color yellow("yellow");
+            Color yellow("yellow"), green("green"), blue("blue"), red("red");
+           
             inRange(hsv,yellow.getHSVlow(),yellow.getHSVhigh(),mask);
             morph(mask);
             findObject(mask,result,Scalar(objB,objG,objR));
+			
+			inRange(hsv,green.getHSVlow(),green.getHSVhigh(),mask);
+            morph(mask);
+            findObject(mask,result,Scalar(objB,objG,objR));
 
+            inRange(hsv,blue.getHSVlow(),blue.getHSVhigh(),mask);
+            morph(mask);
+            findObject(mask,result,Scalar(objB,objG,objR));            
+
+            inRange(hsv,red.getHSVlow(),red.getHSVhigh(),mask);
+            morph(mask);
+            findObject(mask,result,Scalar(objB,objG,objR));
         }
         
 
@@ -123,7 +135,6 @@ int main(int, char**)
     }
     cout << hsvBar.cols;
     destroyAllWindows();
-    // the camera will be deinitialized automatically in VideoCapture destructor
     return 0;
 }
 

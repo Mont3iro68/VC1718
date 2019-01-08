@@ -7,16 +7,21 @@ Color::Color(){
 }
 
 Color::Color(string color){
+	if (color == "green"){
+			setColor(color);
+			setHSVlow(Scalar(35,0,85));
+			setHSVhigh(Scalar(100,255,255));
+	}
 	if(color == "blue"){
 			setColor(color);
-			//setHSVhigh();
-			//setHSVlow();
+			setHSVlow(Scalar(95,110,85));
+			setHSVhigh(Scalar(100,255,255));
 	}
 	if(color == "red"){
 			setColor(color);
-		
+			setHSVlow(Scalar(0,110,180));
+			setHSVhigh(Scalar(180,255,255));
 	}
-	
 	if(color == "yellow"){	
 			setColor(color);
 			setHSVlow(Scalar(15,130,50));
